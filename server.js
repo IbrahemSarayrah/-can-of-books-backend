@@ -1,24 +1,47 @@
 'use strict';
 
 require('dotenv').config();
+
 const express = require('express');
+
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const jwksClient = require('jwks-rsa');
+
+
+
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/user', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const {myUserModel} = require('./modules/userModel')
 
 const app = express();
 app.use(cors());
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT
+// http://localhost:3001/
+app.get('/', testHandler);
 
-app.get('/test', (request, response) => {
+function testHandler(req, res) {
+  res.send('working')
+}
 
-  // TODO: 
-  // STEP 1: get the jwt from the headers
-  // STEP 2. use the jsonwebtoken library to verify that it is a valid jwt
-  // jsonwebtoken dock - https://www.npmjs.com/package/jsonwebtoken
-  // STEP 3: to prove that everything is working correctly, send the opened jwt back to the front-end
 
-})
+// http://localhost:3001/books?userEmail=ibrahem.sarayrah@gmail.com
+
+app.get('/books',getUserData)
+
+function getUserData(req,res){
+
+  let userEmail = req.query.userEmail
+
+  myUserModel.find({email:userEmail}, function(error,userData){
+    if(error){
+      res.send(error)
+    }else {
+      res.send(userData[0].book)
+    }
+  })
+}
+
+
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
