@@ -7,7 +7,7 @@ const express = require('express');
 const cors = require('cors');
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/user', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const { myUserModel } = require('./modules/userModel')
 
@@ -95,6 +95,33 @@ function deleteBook(req, res) {
       res.send(bookData[0].book)
     }
   })
+}
+
+// http://localhost:3001/updateBook
+
+app.put('/updateBook/:id', updateBooks)
+
+function updateBooks (req,res){
+// console.log(req.body);
+  let { updateTitle, updateDescription, updateLink, updateStatus, email } = req.body
+  let index = Number(req.params.id);
+myUserModel.findOne({email:email},(error,updatedBook)=>{
+  if (error) {
+    res.send ('No Data' , error)
+  }else {
+    // console.log(updatedBook);
+    updatedBook.book.splice(index,1,{
+      name: updateTitle,
+      description: updateDescription,
+      status: updateStatus,
+      img: updateLink
+    })
+    // console.log(updatedBook);
+    updatedBook.save();
+    res.send(updatedBook.book)
+  }
+})
+
 }
 
 
